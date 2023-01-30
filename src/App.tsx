@@ -1,58 +1,67 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import { Card, CardHeader, LinearProgress } from "@mui/material";
+import Container from "@mui/material/Container";
+import CssBaseline from "@mui/material/CssBaseline";
+import { Outlet, } from "react-router-dom";
+import { useAppSelector } from "./redux/hooks";
+import { selectAuth } from "./features/login/loginSlice";
+import NavBar from "./features/components/navbar/NavBar";
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
+import { useLayoutContext } from "./context/layoutContext";
+import { ToastContainer } from "react-toastify";
+import AdminRequired from "./features/wrappers/AdminRequired";
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
+  const auth = useAppSelector(selectAuth);
+  const { state: layoutData } = useLayoutContext();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
-  );
+    <>
+      <ToastContainer autoClose={ 3000 }/>
+      <CssBaseline/>
+      { auth.isAuthenticated && <NavBar/> }
+      <Card
+        sx={ {
+          flexGrow: 1,
+        } }
+      >
+        <CardHeader
+          action={
+            layoutData.showPageHeaderAddAction ?
+              <AdminRequired>
+                <Button
+                  variant="contained"
+                  startIcon={ <AddIcon/> }
+                  color="success"
+                  onClick={ layoutData.pageHeaderAddAction }
+                  sx={ {
+                    mr: 9,
+                  } }
+                >
+                  Add new { layoutData.pageHeaderAddActionBtnText }
+                </Button>
+              </AdminRequired> :
+              null
+          }
+          title={ layoutData.pageTitle }
+        />
+        <Container
+          maxWidth="xl"
+          sx={ {
+            flexGrow: 1,
+            height: "90%",
+          } }
+        >
+          <Outlet/>
+        </Container>
+      </Card>
+    </>
+  )
+    ;
 }
 
 export default App;
+
+
+
