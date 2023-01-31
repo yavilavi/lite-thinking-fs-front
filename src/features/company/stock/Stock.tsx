@@ -1,5 +1,5 @@
 import DataTable from "../../components/Table/DataTable";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useGetAllItemsQuery } from "../../../services/CompanyService";
 import Box from "@mui/material/Box";
 import { GridColDef } from "@mui/x-data-grid";
@@ -10,8 +10,12 @@ import Button from "@mui/material/Button";
 import SendIcon from '@mui/icons-material/Send';
 
 export default function Stock() {
-  const { data: items, isLoading, isFetching } = useGetAllItemsQuery();
+  const { data: items, isLoading, isFetching, refetch } = useGetAllItemsQuery();
   const [ openSendEmailModal, setOpenSendEmailModal ] = useState(false)
+
+  useEffect(() => {
+    refetch();
+  },[items, refetch]);
 
   const toggleSendEmailModal = () => {
     setOpenSendEmailModal(!openSendEmailModal)
