@@ -19,23 +19,23 @@ interface SendEmailModalProps {
 
 export default function SendEmailModal(props: SendEmailModalProps) {
   const { open, handleClose } = props;
-  const [ emailValue, setEmailValue ] = React.useState("");
+  const [ emailValue, setEmailValue ] = React.useState("yildavilla@gmail.com");
 
   const [ generatePDFAndSendEmail, { isLoading } ] = useGeneratePDFAndSendEmailMutation();
 
   const handleSendPDF = async () => {
-    const toastId = toast.loading(`Generating PDF y enviando email`);
+    const toastId = toast.loading(`Generating PDF and sending to mail`);
     try {
-      const response = await generatePDFAndSendEmail().unwrap();
+      const response = await generatePDFAndSendEmail({ recipientEmail: emailValue });
       console.log(response);
       toast.update(toastId, {
-        render: `PDF generado y enviado por email`,
+        render: `PDF generated and sent`,
         type: "success",
         isLoading: false
       });
       setTimeout(() => toast.dismiss(toastId), 3000);
       handleClose();
-    }catch (e) {
+    } catch (e) {
       // @ts-ignore
       toast.update(toastId, { render: e.data.message, type: "error", isLoading: false });
       setTimeout(() => toast.dismiss(toastId), 3000);
@@ -68,7 +68,7 @@ export default function SendEmailModal(props: SendEmailModalProps) {
         </DialogContent>
         <DialogActions>
           <Button onClick={ handleClose }>Cancel</Button>
-          <LoadingButton loading={ isLoading } onClick={ handleSendPDF }>Subscribe</LoadingButton>
+          <LoadingButton loading={ isLoading } onClick={ handleSendPDF }>Send mail</LoadingButton>
         </DialogActions>
       </Dialog>
     </div>

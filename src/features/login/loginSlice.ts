@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../../redux/store';
 import { IUser } from "../../types/IUser";
 import { ILoginResponse } from "../../services/types";
+import { PURGE } from "redux-persist";
 
 export interface AuthState {
   isAuthenticated: boolean;
@@ -24,29 +25,19 @@ export const loginSlice = createSlice({
       state,
       action: PayloadAction<ILoginResponse>
     ) => {
-      console.log("storeUserData triggered");
-      localStorage.setItem('accessToken', action.payload.accessToken);
       state.userData = action.payload.user;
       state.accessToken = action.payload.accessToken;
       state.isAuthenticated = action.payload.authenticated;
     },
-    // Use the PayloadAction type to declare the contents of `action.payload`
-    storeUserData: (state, action: PayloadAction<Omit<IUser, "password">>) => {
-      state.userData = action.payload;
-      state.isAuthenticated = true;
-      state.accessToken = localStorage.getItem('accessToken');
-    },
-    logout: (state) => {
-      console.log("removeSession");
-      localStorage.removeItem("accessToken");
-      state.isAuthenticated = false;
-      state.userData = null;
-      state.accessToken = null;
-    }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(PURGE, () => {
+      return initialState;
+    });
   }
 });
 
-export const { logout, storeUserData, setAuthData } = loginSlice.actions;
+export const { setAuthData } = loginSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of

@@ -3,21 +3,20 @@ import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { logout, selectAuth } from "../../login/loginSlice";
+import { useAppSelector } from "../../../redux/hooks";
+import { selectAuth } from "../../login/loginSlice";
 import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom";
 import MobileMenu from "./MobileMenu";
 import DesktopMenu from "./DesktopMenu";
+import { persistor } from "../../../redux/store";
 
 
 export default function NavBar() {
   const auth = useAppSelector(selectAuth);
-  const dispatch = useAppDispatch();
 
   const [ anchorEl, setAnchorEl ] = React.useState<null | HTMLElement>(null);
   const onLogout = () => {
-    dispatch(logout());
+    void persistor.purge();
   }
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {

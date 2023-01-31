@@ -6,22 +6,32 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Copyright from "./components/CopyRght";
-import { useAppDispatch } from "../../redux/hooks";
-import { useNavigate } from "react-router-dom";
-import { setAuthData, storeUserData } from "./loginSlice";
-import { useLoginMutation, useGetUserDataMutation } from "../../services/AuthService";
-import { useEffect } from "react";
-import { IUserResponse } from "../../services/types";
-import { LinearProgress } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { Navigate, useNavigate } from "react-router-dom";
+import { selectAuth, setAuthData } from "./loginSlice";
+import { useLoginMutation } from "../../services/AuthService";
+import { ChangeEvent, useEffect, useState } from "react";
 import LoadingButton from '@mui/lab/LoadingButton';
+import { Alert } from "@mui/material";
+import { toast } from "react-toastify";
+import { ILoginResponse } from "../../services/types";
 
 export default function Login() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const auth = useAppSelector(selectAuth);
+  const [ loginData, setLoginData ] = useState({
+    email: "admin@mail.com",
+    password: "password"
+  });
 
   const [ login, { isLoading: loginLoading } ] = useLoginMutation();
-  const [ getUserData, { isLoading: userLoading, isError, isSuccess } ] = useGetUserDataMutation();
-  console.log( useGetUserDataMutation())
+
+  const handleOnChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const newLoginData = { ...loginData, [event.currentTarget.id]: event.currentTarget.value }
+    setLoginData(newLoginData)
+  }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
@@ -29,25 +39,24 @@ export default function Login() {
       email: data.get('email') as string,
       password: data.get('password') as string
     }
-    const response = await login(credentials).unwrap();
-    dispatch(setAuthData(response))
-    const redirect_url = localStorage.getItem('redirect_url') ?? '/'
-    navigate(redirect_url)
+    try {
+      const response = await toast.promise(login(credentials).unwrap(),
+        {
+          pending: 'Authenticating with server...',
+          success: '👌 Authenticated successfully redirecting...',
+          error: 'Authentication failed 🤯'
+        })
+      setTimeout(() => {
+        dispatch(setAuthData(response as ILoginResponse))
+      }, 2500)
+
+    } catch (err) {
+      console.log(err)
+    }
   };
 
-  useEffect(() => {
-    if (!!localStorage.getItem("accessToken") && !isError) {
-      getUserData().then((data: { data: IUserResponse }) => {
-        dispatch(storeUserData(data.data))
-        const redirect_url = localStorage.getItem('redirect_url') ?? '/'
-        // navigate(redirect_url)
-      }).catch(console.error)
-    }
-  }, []);
-
-
   return (
-    !userLoading ?
+    !auth.isAuthenticated ?
       <Container component="main" maxWidth="xs">
         <Box
           sx={ {
@@ -63,6 +72,11 @@ export default function Login() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
+          <Alert icon={ false } severity="info">
+            use <strong>admin@mail.com</strong> or <strong>external@mail.com</strong> with "<strong>password</strong>"
+            as
+            password to login
+          </Alert>
           <Box component="form" onSubmit={ handleSubmit } noValidate sx={ { mt: 1 } }>
             <TextField
               margin="normal"
@@ -73,6 +87,8 @@ export default function Login() {
               name="email"
               autoComplete="algo"
               autoFocus
+              onChange={ handleOnChange }
+              value={ loginData.email }
             />
             <TextField
               margin="normal"
@@ -83,6 +99,8 @@ export default function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={ handleOnChange }
+              value={ loginData.password }
             />
             <LoadingButton
               type="submit"
@@ -97,6 +115,6 @@ export default function Login() {
         </Box>
         <Copyright sx={ { mt: 8, mb: 4 } }/>
       </Container> :
-      <LinearProgress/>
+      <Navigate to={ localStorage.getItem("redirect_url") || '/' }/>
   );
 }

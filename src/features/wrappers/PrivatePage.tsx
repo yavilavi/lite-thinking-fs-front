@@ -9,9 +9,9 @@ type PrivatePageProps = {
 
 const PrivatePage = (props: PrivatePageProps) => {
   const location = useLocation();
-  localStorage.setItem('redirect_url', location.pathname);
   const auth = useAppSelector(selectAuth);
-  if (!auth.isAuthenticated || !auth.userData || !localStorage.getItem("accessToken") || !auth.accessToken) {
+  localStorage.setItem('redirect_url', location.pathname);
+  if (!auth.isAuthenticated || !auth.userData || !auth.accessToken) {
     return <Navigate to="/login" replace/>
   }
   return props.children

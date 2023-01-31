@@ -5,7 +5,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import { Provider } from 'react-redux';
-import { store } from './redux/store';
+import { persistor, store } from './redux/store';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
@@ -13,6 +13,7 @@ import PrivatePage from "./features/wrappers/PrivatePage";
 import { createTheme, LinearProgress, ThemeProvider } from "@mui/material";
 import { LayoutContextProvider } from "./context/layoutContext";
 import ViewCompany from "./features/company/ViewCompany";
+import { PersistGate } from "redux-persist/integration/react";
 
 const Login = React.lazy(() => import ("./features/login/Login"));
 const ErrorPage = React.lazy(() => import ("./features/error-page/ErrorPage"));
@@ -76,13 +77,13 @@ const theme = createTheme();
 root.render(
   <React.StrictMode>
     <Provider store={ store }>
-      <LayoutContextProvider>
-        <ThemeProvider theme={ theme }>
-          <React.Suspense fallback={ <LinearProgress/> }>
+      <PersistGate persistor={ persistor } loading={ <LinearProgress/> }>
+        <LayoutContextProvider>
+          <ThemeProvider theme={ theme }>
             <RouterProvider router={ router }/>
-          </React.Suspense>
-        </ThemeProvider>
-      </LayoutContextProvider>
+          </ThemeProvider>
+        </LayoutContextProvider>
+      </PersistGate>
     </Provider>
   </React.StrictMode>
 );
