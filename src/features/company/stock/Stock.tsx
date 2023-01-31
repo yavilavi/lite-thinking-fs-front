@@ -7,6 +7,7 @@ import { IItem } from "../types";
 import _ from "lodash";
 import SendEmailModal from "./SendEmailModal";
 import Button from "@mui/material/Button";
+import SendIcon from '@mui/icons-material/Send';
 
 export default function Stock() {
   const { data: items, isLoading, isFetching } = useGetAllItemsQuery();
@@ -34,8 +35,14 @@ export default function Stock() {
       <Button
         variant="outlined"
         onClick={ toggleSendEmailModal }
+        sx={{
+          width:"10rem",
+          fontSize:".6rem",
+          mb:1
+        }}
+        endIcon={<SendIcon />}
       >
-        Send Stock by email
+        Send to mail
       </Button>
       <DataTable
         rows={ !!items ? (items as IItem[]).map((item) => {

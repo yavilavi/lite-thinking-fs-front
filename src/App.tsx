@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardHeader, LinearProgress } from "@mui/material";
+import { Card, CardHeader, CircularProgress, LinearProgress } from "@mui/material";
 import Container from "@mui/material/Container";
 import CssBaseline from "@mui/material/CssBaseline";
 import { Outlet, } from "react-router-dom";
@@ -18,7 +18,12 @@ function App() {
   const { state: layoutData } = useLayoutContext();
   return (
     <>
-      <ToastContainer autoClose={ 3000 }/>
+      <ToastContainer
+        autoClose={ 2000 }
+        hideProgressBar={ false }
+        newestOnTop={ false }
+        closeOnClick
+      />
       <CssBaseline/>
       { auth.isAuthenticated && <NavBar/> }
       <Card
@@ -53,7 +58,9 @@ function App() {
             height: "90%",
           } }
         >
-          <Outlet/>
+          <React.Suspense fallback={ <CircularProgress/> }>
+            <Outlet/>
+          </React.Suspense>
         </Container>
       </Card>
     </>
